@@ -1,15 +1,10 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import { UserController } from "@/controllers/UserController";
 
-class UserRoute {
-  public router = Router();
+const router = Router();
+const userController = new UserController();
 
-  constructor() {
-    this.router.get("/", this.getUser);
-  }
+router.get("/", userController.getAll);
+router.post("/", userController.create);
 
-  private getUser(_req: Request, res: Response): void {
-    res.send("User Home (OOP via filename)");
-  }
-}
-
-export default new UserRoute().router;
+export default router;

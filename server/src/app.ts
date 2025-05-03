@@ -1,3 +1,4 @@
+import "tsconfig-paths/register";
 import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -5,6 +6,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import fs from "fs";
 import { logger } from "./utils/logger";
+import { connectDB } from "./config/db";
 
 class App {
   public app: Application;
@@ -44,10 +46,15 @@ class App {
     });
   }
 
-  public listen(port: number): void {
-    this.app.listen(port, () => {
-      logger.info(`🚀 Server is running on http://localhost:${port}`);
-    });
+  public async listen(port: number): Promise<void> {
+    try {
+      await connectDB();
+      this.app.listen(port, () => {
+        logger.info(`🚀 Server is running on http://localhost:${port}`);
+      });
+    } catch (error) {
+      logger.error("❌ Failed to start server:", error);
+    }
   }
 }
 

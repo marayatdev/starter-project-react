@@ -9,7 +9,23 @@ enum LogLevel {
 
 const getTimestamp = () => new Date().toISOString();
 
-const log = (level: LogLevel, message: string, context?: string) => {
+const formatError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return `${error.message}\n${error.stack}`;
+  } else if (typeof error === "object") {
+    return JSON.stringify(error, null, 2);
+  } else if (error !== undefined) {
+    return String(error);
+  }
+  return "";
+};
+
+const log = (
+  level: LogLevel,
+  message: string,
+  error?: unknown,
+  context?: string
+) => {
   const timestamp = getTimestamp();
   let formattedMessage = `[${timestamp}] [${level}]`;
 
@@ -18,6 +34,10 @@ const log = (level: LogLevel, message: string, context?: string) => {
   }
 
   formattedMessage += `: ${message}`;
+
+  if (error) {
+    formattedMessage += `\n${formatError(error)}`;
+  }
 
   switch (level) {
     case LogLevel.INFO:
@@ -36,8 +56,12 @@ const log = (level: LogLevel, message: string, context?: string) => {
 };
 
 export const logger = {
-  info: (msg: string, ctx?: string) => log(LogLevel.INFO, msg, ctx),
-  warn: (msg: string, ctx?: string) => log(LogLevel.WARN, msg, ctx),
-  error: (msg: string, ctx?: string) => log(LogLevel.ERROR, msg, ctx),
-  debug: (msg: string, ctx?: string) => log(LogLevel.DEBUG, msg, ctx),
+  info: (msg: string, err?: unknown, ctx?: string) =>
+    log(LogLevel.INFO, msg, err, ctx),
+  warn: (msg: string, err?: unknown, ctx?: string) =>
+    log(LogLevel.WARN, msg, err, ctx),
+  error: (msg: string, err?: unknown, ctx?: string) =>
+    log(LogLevel.ERROR, msg, err, ctx),
+  debug: (msg: string, err?: unknown, ctx?: string) =>
+    log(LogLevel.DEBUG, msg, err, ctx),
 };
