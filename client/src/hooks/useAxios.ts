@@ -1,10 +1,13 @@
+// hooks/useAxios.ts
 import { useState, useEffect } from 'react';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 export function useAxios<T = any>(
     config: AxiosRequestConfig,
     dependencies: any[] = []
 ) {
+    const { token } = useAuth();
     const [data, setData] = useState<T | null>(null);
     const [error, setError] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -15,7 +18,6 @@ export function useAxios<T = any>(
         const fetchData = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem('token'); // หรือใช้จาก context ก็ได้
                 const finalConfig: AxiosRequestConfig = {
                     ...config,
                     headers: {
@@ -44,7 +46,7 @@ export function useAxios<T = any>(
         return () => {
             cancel = true;
         };
-    }, dependencies);
+    }, [token, ...dependencies]);
 
     return { data, error, loading };
 }
